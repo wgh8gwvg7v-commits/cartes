@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Classeur de Matthew</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a binder spine of summary on top, then one dense, sortable price list per game. */
+:root{
+  --bg:#eef1f5; --panel:#ffffff; --ink:#14203a; --muted:#5d6880; --line:#d9dfe8;
+  --foil:#a87a1f; --op:#c2362b; --nba:#0b5a2c; --up:#13804a; --down:#c23a2b; --chip:#e6eaf1;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --accent:var(--op);
+  --r-c:#8a93a3; --r-uc:#2f9e5b; --r-r:#2f6fd6; --r-sr:#c9961c; --r-l:#d2382b; --r-tr:#8b3fd1; --r-don:#2b2f3a; --r-on:#ffffff;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1424; --panel:#161e31; --ink:#e6eaf3; --muted:#97a2ba; --line:#2a3550;
+  --foil:#e0b65a; --op:#f06b5d; --nba:#4cc27c; --up:#4cc27c; --down:#f06b5d; --chip:#222c44; --r-c:#7d8798; --r-uc:#3fbf72; --r-r:#4d8cf0; --r-sr:#e2b23a; --r-l:#f0584a; --r-tr:#a866ec; --r-don:#5a6070; --r-on:#0e1424; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1424; --panel:#161e31; --ink:#e6eaf3; --muted:#97a2ba; --line:#2a3550;
+  --foil:#e0b65a; --op:#f06b5d; --nba:#4cc27c; --up:#4cc27c; --down:#f06b5d; --chip:#222c44; --r-c:#7d8798; --r-uc:#3fbf72; --r-r:#4d8cf0; --r-sr:#e2b23a; --r-l:#f0584a; --r-tr:#a866ec; --r-don:#5a6070; --r-on:#0e1424; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body)}
+body[data-game="nba"]{--accent:var(--nba)}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 16px 48px;display:grid;gap:22px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px}
+.eyebrow{font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--foil)}
+h1{font:800 clamp(28px,5vw,42px)/1.05 var(--display);margin:6px 0 0;text-wrap:balance}
+.fresh{font:13px/1.4 var(--body);color:var(--muted);text-align:right}
+.fresh b{color:var(--ink);font-weight:600}
+.tabs{display:flex;gap:6px;background:var(--chip);padding:4px;border-radius:12px;width:max-content;max-width:100%}
+.tabs button{border:0;background:transparent;color:var(--muted);font:600 14px var(--body);padding:8px 16px;border-radius:9px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0/.12)}
+.tabs button:focus-visible,.ctl:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0}
+.stat .k{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stat .v{font:800 26px/1.2 var(--display);margin-top:4px;font-variant-numeric:tabular-nums}
+.stat .s{font-size:13px;color:var(--muted)}
+.stat.hero{border-color:var(--accent);border-width:2px}
+#gems-wrap{min-width:0}
+.top{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.track{display:flex;gap:10px;width:max-content;animation:marquee var(--dur,40s) linear infinite}
+@keyframes marquee{to{transform:translateX(calc(-50% - 5px))}}
+@media (prefers-reduced-motion:reduce){.track{animation:none}.top{overflow-x:auto}}
+.gem{flex:0 0 auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:grid;grid-template-columns:auto auto auto;gap:12px;align-items:center;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.gem:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gem .rk{font:700 12px var(--mono);background:var(--chip);color:var(--muted);border-radius:6px;padding:2px 6px}
+.gem .n{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gem .c{font:12px var(--mono);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gem .p{font:600 14px var(--mono);white-space:nowrap}
+h2{font:700 18px var(--display);margin:0}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ctl{font:14px var(--body);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+#q{flex:1 1 200px;min-width:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font:500 12px var(--mono);border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:99px;padding:4px 10px;cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+.list{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.row{display:grid;grid-template-columns:92px minmax(0,1fr) 44px 112px 84px 92px;gap:12px;align-items:center;padding:9px 16px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row.head{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--chip)}
+.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.code{font:12px var(--mono);color:var(--muted)}
+.code a{color:inherit}
+.name{min-width:0}
+.name .t{font-weight:500}
+.name .sub{font-size:12.5px;color:var(--muted)}
+.rar{display:inline-block;font:600 10.5px var(--mono);padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:1px;background:var(--chip);color:var(--muted)}
+.rar.hi{background:var(--foil);color:var(--panel)}
+.rar[data-r]{background:var(--rc);color:var(--r-on)}
+[data-r="C"]{--rc:var(--r-c)}[data-r="UC"]{--rc:var(--r-uc)}[data-r="R"]{--rc:var(--r-r)}[data-r="SR"]{--rc:var(--r-sr)}
+[data-r="L"]{--rc:var(--r-l)}[data-r="DON"]{--rc:var(--r-don)}
+[data-r="TR"],[data-r="SEC"]{--rc:var(--r-tr)}
+body[data-game="op"] .chips button[data-r]:not([data-r=""]){border-color:var(--rc);color:var(--rc)}
+body[data-game="op"] .chips button[data-r]:not([data-r=""])[aria-pressed="true"]{background:var(--rc);color:var(--r-on)}
+.orig{display:block;font-size:11.5px;color:var(--muted)}
+.pill{display:inline-block;font:500 12px var(--mono);padding:2px 7px;border-radius:99px;background:var(--chip);color:var(--muted)}
+.pill.up{color:var(--up)}.pill.down{color:var(--down)}
+svg.spark{display:block;margin-left:auto}
+.sales{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.sales span{font:11px var(--mono);background:var(--chip);color:var(--muted);border-radius:4px;padding:1px 5px}
+.stale{display:block;font-size:12px;color:var(--foil)}
+.row.card{cursor:pointer}
+.row.card:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.row.card.open{background:var(--chip)}
+.detail{display:grid;gap:10px;padding:12px 16px 16px;background:var(--chip);border-top:1px dashed var(--line);font-size:13.5px}
+.detail .k{display:block;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.detail .sales span{background:var(--panel)}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{font:500 13px var(--body);color:var(--accent);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px;text-decoration:none}
+.links a:hover{border-color:var(--accent)}
+.t[data-img]{text-decoration:underline dotted var(--muted);text-underline-offset:3px}
+#peek{position:fixed;z-index:10;width:200px;height:auto;border-radius:10px;box-shadow:0 10px 30px rgb(0 0 0/.35);pointer-events:none;background:var(--panel)}
+.detail.has-img{grid-template-columns:120px minmax(0,1fr)}
+.detail.has-img > *:not(.dimg){grid-column:2}
+.dimg{grid-row:1/span 4;width:120px;border-radius:8px;align-self:start}
+@media (max-width:640px){.detail.has-img{grid-template-columns:90px minmax(0,1fr)}.dimg{width:90px}}
+.lock{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.lock-card{width:100%;max-width:360px;display:grid;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px}
+.lock-card .k{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.rem{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.go{font:600 15px var(--body);background:var(--accent);color:var(--panel);border:0;border-radius:9px;padding:10px;cursor:pointer}
+.go:disabled{opacity:.6}
+.err{margin:0;color:var(--down);font-size:13px}
+.empty{padding:28px 16px;text-align:center;color:var(--muted)}
+.note{font-size:13px;color:var(--muted);max-width:70ch}
+.note a{color:var(--accent)}
+@media (max-width:640px){
+  .row{grid-template-columns:minmax(0,1fr) auto;row-gap:2px;padding:10px 14px}
+  .row.head{display:none}
+  .row .code{grid-column:1;grid-row:1}
+  .row .name{grid-column:1;grid-row:2}
+  .row .price{grid-column:2;grid-row:1/3}
+  .row .qty,.row .trend{display:none}
+  .row .tot{grid-column:2;grid-row:3;font-size:12px;color:var(--muted)}
+  .row .var{grid-column:1;grid-row:3}
+  .fresh{text-align:left}
+}
+@media (prefers-reduced-motion:no-preference){.list .row{transition:background .15s}.list .row:not(.head):hover{background:var(--chip)}}
+</style>
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+
+<div class="lock" id="lock">
+  <form id="lock-form" class="lock-card">
+    <div class="eyebrow">Classeur · One Piece &amp; NBA</div>
+    <h1 style="font-size:28px">La collection de Matthew</h1>
+    <label for="code" class="k">Code d'accès</label>
+    <input id="code" class="ctl" type="password" autocomplete="current-password" required autofocus>
+    <label class="rem"><input id="remember" type="checkbox" checked> Se souvenir de moi sur cet appareil</label>
+    <button id="lock-btn" class="go" type="submit">Ouvrir</button>
+    <p id="lock-err" class="err" hidden>Ce code n'est pas le bon. Réessaie.</p>
+  </form>
+</div>
+<div class="wrap" id="app" hidden>
+  <header>
+    <div>
+      <div class="eyebrow">Classeur · One Piece &amp; NBA</div>
+      <h1>La collection de Matthew</h1>
+    </div>
+    <div class="fresh" id="fresh">Chargement des prix…</div>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Jeu">
+    <button role="tab" id="tab-op" aria-selected="true" data-g="op">One Piece</button>
+    <button role="tab" id="tab-nba" aria-selected="false" data-g="nba">NBA</button>
+  </div>
+
+  <section class="sum" id="sum" aria-live="polite"></section>
+
+  <section style="display:grid;gap:10px" id="gems-wrap">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <h2 id="gems-title">Les cartes qui valent le plus</h2>
+    </div>
+    <div class="top" id="gems" tabindex="-1"></div>
+  </section>
+
+  <section style="display:grid;gap:10px">
+    <div class="bar">
+      <input id="q" class="ctl" type="search" placeholder="Chercher un nom ou un code" aria-label="Chercher">
+      <select id="sort" class="ctl" aria-label="Trier">
+        <option value="val">Valeur totale</option>
+        <option value="price">Prix unitaire</option>
+        <option value="var">Plus forte hausse</option>
+        <option value="code">Numéro</option>
+      </select>
+    </div>
+    <div class="chips" id="chips"></div>
+    <p class="note" style="margin:0">Clique sur une carte pour voir où son prix a été trouvé et ouvrir les ventes.</p>
+    <div class="list" id="list"><div class="empty">Ta collection s'affiche ici dès que les prix sont chargés.</div></div>
+  </section>
+
+  <p class="note" id="foot"></p>
+  <button id="logout" class="ctl" type="button" style="justify-self:start">Verrouiller sur cet appareil</button>
+  <img id="peek" alt="" hidden>
+</div>
+
+<script>
+const S = { gemsKey: "", openId: null, game: "op", q: "", sort: "val", rar: null, op: null, nba: null, meta: null };
+try { const g = localStorage.getItem("game"); if (g === "op" || g === "nba") S.game = g; } catch (e) {}
+if (location.hash === "#nba") S.game = "nba";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const chf = (n, d = 2) => n == null ? "—" : "CHF " + n.toLocaleString("fr-CH", { minimumFractionDigits: d, maximumFractionDigits: d });
+const sym = { EUR: "€", USD: "$" };
+const fmtDate = (s) => new Date(s.length === 10 ? s + "T12:00:00Z" : s).toLocaleDateString("fr-CH", { day: "numeric", month: "long", year: "numeric" });
+const short = (s) => new Date(s + "T12:00:00Z").toLocaleDateString("fr-CH", { day: "2-digit", month: "2-digit" });
+const IMGS = Object.fromEntries(["OP12-001", "OP12-002", "OP12-003", "OP12-004", "OP12-005", "OP12-006", "OP12-007", "OP12-009", "OP12-010", "OP12-011", "OP12-012", "OP12-013", "OP12-014", "OP12-015", "OP12-016", "OP12-017", "OP12-018", "OP12-019", "OP12-020", "OP12-021", "OP12-023", "OP12-024", "OP12-025", "OP12-026", "OP12-027", "OP12-028", "OP12-029", "OP12-030", "OP12-031", "OP12-032", "OP12-033", "OP12-034", "OP12-035", "OP12-036", "OP12-037", "OP12-038", "OP12-039", "OP12-040", "OP12-041", "OP12-042", "OP12-043", "OP12-044", "OP12-045", "OP12-046", "OP12-047", "OP12-048", "OP12-049", "OP12-050", "OP12-051", "OP12-052", "OP12-053", "OP12-054", "OP12-055", "OP12-056", "OP12-057", "OP12-058", "OP12-059", "OP12-060", "OP12-061", "OP12-062", "OP12-063", "OP12-064", "OP12-065", "OP12-066", "OP12-067", "OP12-068", "OP12-069", "OP12-070", "OP12-071", "OP12-072", "OP12-073", "OP12-074", "OP12-075", "OP12-076", "OP12-077", "OP12-078", "OP12-080", "OP12-081", "OP12-082", "OP12-083", "OP12-084", "OP12-085", "OP12-086", "OP12-086-aa", "OP12-087", "OP12-088", "OP12-089", "OP12-090", "OP12-091", "OP12-092", "OP12-093", "OP12-094", "OP12-095", "OP12-096", "OP12-097", "OP12-098", "OP12-099", "OP12-100", "OP12-101", "OP12-102", "OP12-103", "OP12-104", "OP12-105", "OP12-106", "OP12-107", "OP12-108", "OP12-109", "OP12-110", "OP12-111", "OP12-112", "OP12-113", "OP12-114", "OP12-115", "OP12-116", "OP12-117", "cb-bcv14", "cb-cc139", "cb-t214", "cb-tc264", "ga-t54", "ga-tc137r"].map((id) => [id, `img/${id}.jpg`]));
+const imgOf = (c) => IMGS[c.id] ? c.id : null;
+const HI = new Set(["SR", "SEC", "TR", "L", "SP", "MR"]);
+
+function rate(cur) { return S.meta?.rates?.[cur] ?? (cur === "EUR" ? 0.93 : 0.83); }
+function enrich(c) {
+  const h = c.hist || [];
+  // Variation over about a week: the latest point at least 7 days before the last one, else the oldest point.
+  const last = h.at(-1)?.[1] ?? null;
+  let prev = null;
+  if (h.length > 1) {
+    const cut = new Date(new Date(h.at(-1)[0] + "T12:00:00Z") - 7 * 864e5).toISOString().slice(0, 10);
+    const older = h.slice(0, -1).filter((x) => x[0] <= cut);
+    prev = (older.at(-1) || h[0])[1];
+  }
+  const r = rate(c.cur);
+  return { ...c, p: last, pCHF: last == null ? null : last * r, prevCHF: prev == null ? null : prev * r,
+    var: prev ? (last - prev) / prev : null, tot: last == null ? null : last * r * (c.qty || 1), r };
+}
+function spark(h) {
+  if (!h || h.length < 2) return "";
+  const w = 84, ht = 26, ys = h.map((x) => x[1]), mn = Math.min(...ys), mx = Math.max(...ys), span = mx - mn || 1;
+  const pts = ys.map((y, i) => [2 + i * (w - 4) / (ys.length - 1), ht - 3 - (y - mn) / span * (ht - 6)]);
+  const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+  const up = ys.at(-1) >= ys[0], col = up ? "var(--up)" : "var(--down)", e = pts.at(-1);
+  return `<svg class="spark" width="${w}" height="${ht}" viewBox="0 0 ${w} ${ht}" aria-hidden="true">
+    <path d="${d} L${e[0]} ${ht} L2 ${ht}Z" fill="${col}" opacity=".12"/><path d="${d}" fill="none" stroke="${col}" stroke-width="1.6"/>
+    <circle cx="${e[0]}" cy="${e[1]}" r="2.4" fill="${col}"/></svg>`;
+}
+function pill(v) {
+  if (v == null) return `<span class="pill" title="Un seul relevé pour l'instant">nouveau</span>`;
+  if (Math.abs(v) < 0.005) return `<span class="pill">=</span>`;
+  return `<span class="pill ${v > 0 ? "up" : "down"}">${v > 0 ? "▲" : "▼"} ${Math.abs(v * 100).toFixed(0)} %</span>`;
+}
+
+function render() {
+  document.body.dataset.game = S.game;
+  for (const b of document.querySelectorAll(".tabs button")) b.setAttribute("aria-selected", String(b.dataset.g === S.game));
+  const m = S.meta;
+  $("fresh").innerHTML = m ? `Prix relevés le <b>${fmtDate(m.updatedAt)}</b><br>Prochain relevé : ${esc(m.nextUpdate || "—")}` : "Chargement des prix…";
+  const raw = S.game === "op" ? S.op : S.nba;
+  if (!raw) { $("sum").innerHTML = ""; $("gems").innerHTML = ""; return; }
+  const cards = raw.map(enrich);
+  summary(cards); gems(cards); chips(cards); list(cards); foot();
+}
+
+function summary(cards) {
+  const tot = cards.reduce((a, c) => a + (c.tot || 0), 0);
+  const prevTot = cards.reduce((a, c) => a + (c.prevCHF ?? c.pCHF ?? 0) * (c.qty || 1), 0);
+  const delta = tot - prevTot;
+  if (S.game === "op") {
+    const n = cards.reduce((a, c) => a + (c.qty || 0), 0);
+    $("sum").innerHTML = `
+      <div class="stat hero"><div class="k">Valeur de la collection</div><div class="v">${chf(tot)}</div>
+        <div class="s">${delta >= 0 ? "+" : "−"}${chf(Math.abs(delta)).replace("CHF ", "")} CHF sur 7 jours</div></div>
+      <div class="stat"><div class="k">Cartes</div><div class="v">${n}</div><div class="s">${cards.length} cartes différentes</div></div>`;
+  } else {
+    const psa = cards.reduce((a, c) => a + (c.psa10 ? c.psa10 * c.r : 0), 0);
+    $("sum").innerHTML = `
+      <div class="stat hero"><div class="k">Liste de souhaits</div><div class="v">${cards.length} cartes</div><div class="s">Aucune carte NBA possédée pour l'instant</div></div>
+      <div class="stat"><div class="k">Tout acheter (raw)</div><div class="v">${chf(tot)}</div><div class="s">Prix de vente moyen, hors port</div></div>
+      <div class="stat"><div class="k">Les mêmes en PSA 10</div><div class="v">${chf(psa, 0)}</div><div class="s">Pour comparer avant de faire grader</div></div>`;
+  }
+}
+function gems(cards) {
+  $("gems-title").textContent = S.game === "op" ? "Les 10 cartes qui valent le plus" : "Les plus chères de la liste";
+  const top = [...cards].sort((a, b) => (b.pCHF || 0) - (a.pCHF || 0)).slice(0, 10);
+  const key = S.game + top.map((c) => c.id + c.pCHF).join();
+  if (key === S.gemsKey) return;
+  S.gemsKey = key;
+  const tile = (c, i) => `<button class="gem" data-id="${esc(c.id)}"><span class="rk">${i + 1}</span>
+    <span style="min-width:0"><span class="n" style="display:block">${esc(c.name)}</span>
+    <span class="c" style="display:block">${esc(c.code)}${c.variant ? " · " + esc(c.variant) : c.rarity ? " · " + esc(c.rarity) : ""}</span></span>
+    <span class="p">${chf(c.pCHF)}</span></button>`;
+  const one = top.map(tile).join("");
+  $("gems").innerHTML = `<div class="track" style="--dur:${top.length * 4}s">${one}${one.replace(/<button /g, '<button tabindex="-1" aria-hidden="true" ')}</div>`;
+}
+function chips(cards) {
+  const key = S.game === "op" ? "rarity" : "line";
+  const vals = [...new Set(cards.map((c) => c[key]).filter(Boolean))];
+  const order = ["TR", "SEC", "SR", "L", "R", "UC", "C", "DON"];
+  vals.sort((a, b) => (order.indexOf(a) + 99) % 99 - (order.indexOf(b) + 99) % 99 || String(a).localeCompare(b));
+  if (S.rar && !vals.includes(S.rar)) S.rar = null;
+  $("chips").innerHTML = [`<button aria-pressed="${!S.rar}" data-r="">Tout</button>`]
+    .concat(vals.map((v) => `<button aria-pressed="${S.rar === v}" data-r="${esc(v)}">${esc(v)}</button>`)).join("");
+}
+function list(cards) {
+  const q = S.q.trim().toLowerCase(), key = S.game === "op" ? "rarity" : "line";
+  const today = (S.meta?.updatedAt || "").slice(0, 10);
+  const stale = (c) => today && c.hist?.length && c.hist.at(-1)[0] < today
+    ? `<span class="stale">Pas de vente récente, dernier prix du ${short(c.hist.at(-1)[0])}</span>` : "";
+  let rows = cards.filter((c) => (!S.rar || c[key] === S.rar) &&
+    (!q || [c.code, c.name, c.set, c.variant].join(" ").toLowerCase().includes(q)));
+  const by = { val: (a, b) => (b.tot || 0) - (a.tot || 0), price: (a, b) => (b.pCHF || 0) - (a.pCHF || 0),
+    var: (a, b) => (b.var ?? -9) - (a.var ?? -9), code: (a, b) => String(a.code).localeCompare(b.code, "fr", { numeric: true }) };
+  rows.sort(by[S.sort]);
+  const head = `<div class="row head"><span>Code</span><span>Carte</span><span class="num">Qté</span><span class="num">Prix</span><span class="num">7 jours</span><span class="num">${S.game === "op" ? "Total" : "Tendance"}</span></div>`;
+  if (!rows.length) { $("list").innerHTML = head + `<div class="empty">Aucune carte ne correspond à cette recherche.</div>`; return; }
+  $("list").innerHTML = head + rows.map((c) => {
+    const sub = S.game === "op"
+      ? [c.variant, c.code === "OP10-049" ? "Prix estimé, pas de cote Cardmarket" : c.note].filter(Boolean).map(esc).join(" · ") + stale(c)
+      : `${esc(c.set)} · ${esc(c.variant)}${c.psa10 ? ` · PSA 10 ≈ ${chf(c.psa10 * c.r, 0)}` : ""}` +
+        stale(c) + (c.last ? `<div class="sales">${c.last.map((s) => `<span>${short(s[0])} · ${s[1].toFixed(2)} $</span>`).join("")}</div>` : "");
+    const open = S.openId === c.id;
+    return `<div class="row card${open ? " open" : ""}" role="button" tabindex="0" aria-expanded="${open}" data-id="${esc(c.id)}">
+      <span class="code">${esc(c.code)}</span>
+      <span class="name"><span class="t"${imgOf(c) ? ` data-img="${imgOf(c)}"` : ""}>${esc(c.name)}</span>${c.rarity ? `<span class="rar" data-r="${esc(c.rarity)}">${esc(c.rarity)}</span>` : ""}
+        ${sub ? `<div class="sub">${sub}</div>` : ""}</span>
+      <span class="num qty">${c.status === "wanted" ? "—" : "×" + c.qty}</span>
+      <span class="num price">${chf(c.pCHF)}<span class="orig">${c.p == null ? "" : c.p.toFixed(2) + " " + sym[c.cur]}</span></span>
+      <span class="num var">${pill(c.var)}</span>
+      <span class="num ${S.game === "op" ? "tot" : "trend"}">${S.game === "op" ? (c.qty > 1 ? chf(c.tot) : "") + spark(c.hist) : spark(c.hist) || '<span class="code">1 relevé</span>'}</span>
+    </div>${open ? detail(c) : ""}`;
+  }).join("");
+}
+function detail(c) {
+  const enc = encodeURIComponent, L = [];
+  const ebayQ = S.game === "op" ? `One Piece ${c.code}${c.rarity === "TR" ? " treasure rare" : ""}${c.variant && /aa/.test(c.variant) ? " alternate art" : ""}` : `${c.set} ${c.name} ${c.code}`;
+  if (c.url) L.push([c.url, S.game === "nba" ? "Fiche de prix (ventes eBay)" : /^Cardmarket/.test(c.src || "") ? "Fiche de prix (cote Cardmarket)" : "Fiche de la carte"]);
+  if (S.game === "op") L.push([`https://www.cardmarket.com/fr/OnePiece/Products/Search?searchString=${enc(c.code)}`, "Offres sur Cardmarket"]);
+  L.push([`https://www.ebay.com/sch/i.html?_nkw=${enc(ebayQ)}&LH_Sold=1&LH_Complete=1`, "Ventes terminées sur eBay"]);
+  if (S.game === "nba") L.push(["https://130point.com/sales/", "Vérifier sur 130point"]);
+  const h = (c.hist || []).slice(-8).reverse();
+  const im = imgOf(c);
+  return `<div class="detail${im ? " has-img" : ""}">
+    ${im ? `<img class="dimg" src="${IMGS[im]}" alt="${esc(c.name)}" loading="lazy">` : ""}
+    <div class="dsrc"><span class="k">Source du dernier prix</span>${esc(c.src || "Non précisée")}${c.hist?.length ? `, relevé le ${fmtDate(c.hist.at(-1)[0])}` : ""}</div>
+    ${c.last ? `<div><span class="k">Dernières ventes</span><div class="sales">${c.last.map((s) => `<span>${fmtDate(s[0])} · ${s[1].toFixed(2)} $ (${chf(s[1] * c.r)})</span>`).join("")}</div></div>` : ""}
+    <div><span class="k">Historique</span><div class="sales">${h.map((x) => `<span>${short(x[0])} · ${chf(x[1] * c.r)}</span>`).join("")}</div></div>
+    <div class="links">${L.map(([u, t]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)} ↗</a>`).join("")}</div>
+  </div>`;
+}
+function foot() {
+  const r = S.meta?.rates;
+  $("foot").innerHTML = S.game === "op"
+    ? `Prix One Piece : cote Cardmarket (édition anglaise) relevée sur <a href="https://onepiece.limitlesstcg.com/cards/OP12" target="_blank" rel="noopener">Limitless TCG</a>. La VF peut coûter un peu plus ou moins. ${r ? `Converti à 1 € = ${r.EUR} CHF (taux ${r.src} du ${short(r.date)}).` : ""}`
+    : `Prix NBA : moyenne des dernières ventes eBay terminées pour une carte non gradée, via <a href="https://www.sportscardspro.com" target="_blank" rel="noopener">SportsCardsPro</a>. À vérifier sur <a href="https://130point.com/sales/" target="_blank" rel="noopener">130point</a> avant d'acheter. ${r ? `Converti à 1 $ = ${r.USD} CHF.` : ""} Port et douane non compris.`;
+}
+
+document.querySelector(".tabs").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  S.game = b.dataset.g; S.rar = null; S.openId = null; try { localStorage.setItem("game", S.game); } catch (e) {} render();
+});
+const toggle = (e) => { const r = e.target.closest(".row.card"); if (!r || e.target.closest("a")) return;
+  S.openId = S.openId === r.dataset.id ? null : r.dataset.id; render(); document.querySelector(`.row.card[data-id="${CSS.escape(r.dataset.id)}"]`)?.focus(); };
+$("list").addEventListener("click", toggle);
+$("list").addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.matches(".row.card")) { e.preventDefault(); toggle(e); } });
+const strip = $("gems");
+strip.addEventListener("click", (e) => {
+  const g = e.target.closest(".gem"); if (!g) return;
+  S.openId = g.dataset.id; S.q = ""; $("q").value = ""; S.rar = null; render();
+  const row = document.querySelector(`.row.card[data-id="${CSS.escape(g.dataset.id)}"]`);
+  row?.scrollIntoView({ block: "center" }); row?.focus({ preventScroll: true });
+});
+const peek = $("peek");
+const canHover = matchMedia("(hover: hover)").matches;
+$("list").addEventListener("mouseover", (e) => {
+  const t = e.target.closest(".t[data-img]"); if (!t || !canHover) return;
+  peek.src = IMGS[t.dataset.img]; peek.alt = t.textContent; peek.hidden = false;
+});
+$("list").addEventListener("mousemove", (e) => {
+  if (peek.hidden) return;
+  const w = 200, h = 280, x = e.clientX + 24 + w > innerWidth ? e.clientX - w - 24 : e.clientX + 24;
+  peek.style.left = x + "px"; peek.style.top = Math.max(8, Math.min(e.clientY - h / 2, innerHeight - h - 8)) + "px";
+});
+$("list").addEventListener("mouseout", (e) => { if (e.target.closest(".t[data-img]")) peek.hidden = true; });
+$("q").addEventListener("input", (e) => { S.q = e.target.value; render(); });
+$("sort").addEventListener("change", (e) => { S.sort = e.target.value; render(); });
+$("chips").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; S.rar = b.dataset.r || null; render(); });
+
+render();
+const b64 = (t) => Uint8Array.from(atob(t), (c) => c.charCodeAt(0));
+async function unlock(code) {
+  const enc = await (await fetch("data/collection.enc.json?" + Date.now())).json();
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(code), "PBKDF2", false, ["deriveKey"]);
+  const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: b64(enc.salt), iterations: enc.iter, hash: "SHA-256" },
+    base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(enc.iv) }, key, b64(enc.data));
+  const d = JSON.parse(new TextDecoder().decode(plain));
+  S.meta = d.meta; S.op = d.onepiece.cards; S.nba = d.nba.cards;
+  $("lock").hidden = true; $("app").hidden = false; render();
+}
+$("lock-form").addEventListener("submit", async (e) => {
+  e.preventDefault(); const code = $("code").value; $("lock-err").hidden = true; $("lock-btn").disabled = true;
+  try { await unlock(code); if ($("remember").checked) try { localStorage.setItem("cartes-code", code); } catch (_) {} }
+  catch (_) { $("lock-err").hidden = false; $("code").select(); }
+  $("lock-btn").disabled = false;
+});
+$("logout").addEventListener("click", () => { try { localStorage.removeItem("cartes-code"); } catch (_) {} location.reload(); });
+(async () => { let c = null; try { c = localStorage.getItem("cartes-code"); } catch (_) {}
+  if (c) try { await unlock(c); } catch (_) { try { localStorage.removeItem("cartes-code"); } catch (__) {} } })();
+</script>
+
+</body>
+</html>
