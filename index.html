@@ -89,7 +89,7 @@ svg.spark{display:block;margin-left:auto}
 .row.card:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .row.card.open{background:var(--chip)}
 .detail{display:grid;gap:10px;padding:12px 16px 16px;background:var(--chip);border-top:1px dashed var(--line);font-size:13.5px}
-.detail .k,.elsewhere .k{display:block;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.detail .k{display:block;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
 .detail .sales span{background:var(--panel)}
 .links{display:flex;flex-wrap:wrap;gap:8px}
 .links a{font:500 13px var(--body);color:var(--accent);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px;text-decoration:none}
@@ -108,7 +108,6 @@ svg.spark{display:block;margin-left:auto}
 .go:disabled{opacity:.6}
 .err{margin:0;color:var(--down);font-size:13px}
 .empty{padding:28px 16px;text-align:center;color:var(--muted)}
-.elsewhere{display:grid;gap:8px;padding:14px 16px;border-top:1px solid var(--line)}
 .note{font-size:13px;color:var(--muted);max-width:70ch}
 .note a{color:var(--accent)}
 @media (max-width:640px){
@@ -290,7 +289,7 @@ function list(cards) {
     var: (a, b) => (b.var ?? -9) - (a.var ?? -9), code: (a, b) => String(a.code).localeCompare(b.code, "fr", { numeric: true }) };
   rows.sort(by[S.sort]);
   const head = `<div class="row head"><span>Code</span><span>Carte</span><span class="num">Qté</span><span class="num">Prix</span><span class="num">7 jours</span><span class="num">${S.game === "op" ? "Total" : "Tendance"}</span></div>`;
-  if (!rows.length) { $("list").innerHTML = head + `<div class="empty">Cette carte n'est pas dans ta collection.</div>` + elsewhere(q); return; }
+  if (!rows.length) { $("list").innerHTML = head + `<div class="empty">Aucune carte ne correspond à cette recherche.</div>`; return; }
   $("list").innerHTML = head + rows.map((c) => {
     const sub = S.game === "op"
       ? [c.variant, c.code === "OP10-049" ? "Prix estimé, pas de cote Cardmarket" : c.note].filter(Boolean).map(esc).join(" · ") + stale(c)
@@ -306,19 +305,7 @@ function list(cards) {
       <span class="num var">${pill(c.var)}</span>
       <span class="num ${S.game === "op" ? "tot" : "trend"}">${S.game === "op" ? (c.qty > 1 ? chf(c.tot) : "") + spark(c.hist) : spark(c.hist) || '<span class="code">1 relevé</span>'}</span>
     </div>${open ? detail(c) : ""}`;
-  }).join("") + elsewhere(q);
-}
-function elsewhere(q) {
-  if (!q) return "";
-  const enc = encodeURIComponent, t = S.q.trim(), L = S.game === "op"
-    ? [[`https://www.cardmarket.com/fr/OnePiece/Products/Search?searchString=${enc(t)}`, "Prix sur Cardmarket"],
-       [`https://onepiece.limitlesstcg.com/cards?q=${enc(t)}`, "Fiche sur Limitless"],
-       [`https://www.ebay.com/sch/i.html?_nkw=${enc("One Piece " + t)}&LH_Sold=1&LH_Complete=1`, "Ventes terminées sur eBay"]]
-    : [[`https://www.sportscardspro.com/search-products?q=${enc(t)}&type=prices`, "Prix sur SportsCardsPro"],
-       [`https://www.ebay.com/sch/i.html?_nkw=${enc(t)}&LH_Sold=1&LH_Complete=1`, "Ventes terminées sur eBay"],
-       ["https://130point.com/sales/", "Chercher sur 130point"]];
-  return `<div class="elsewhere"><span class="k">Chercher « ${esc(t)} » partout</span>
-    <div class="links">${L.map(([u, x]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(x)} ↗</a>`).join("")}</div></div>`;
+  }).join("");
 }
 function detail(c) {
   const enc = encodeURIComponent, L = [];
